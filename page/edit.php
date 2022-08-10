@@ -1,68 +1,103 @@
 <?php
-session_start();
-require('db.php');
-$id = filter_input(INPUT_GET, 'user_id', FILTER_SANITIZE_NUMBER_INT);
 
-$seek_users = "SELECT * FROM users WHERE user_id = '$id'";
+/**
+ * edit.php
+ * Página 'Editar' carregada pelo link '/?p=edit'.
+ **/
 
-$seeking_users = mysqli_query($conn, $seek_users);
-$peruse_users = mysqli_fetch_assoc($seeking_users);
+// Inicializa a variáveis:
+$page_title = 'Editar perfil';
+$page_content = "<h2>Editar usuário</h2>";
+$id = 0;
 
+// Obtém o id da URL:
+if (isset($_GET['u'])) $id = intval($_GET['u']);
 
+// Se o id é inválido, redireciona para ERRO 404:
+if ($id == 0) header('Location: /?p=e404');
+
+// Obtém os dados do usuário do banco de dados:
+$sql = <<<SQL
+
+SELECT 
+    *,
+    DATE_FORMAT(user_date, '%d/%m/%Y às %H:%i:%s') AS date_br,
+    DATE_FORMAT(user_birth, '%d/%m/%Y') AS birth_br
+FROM users 
+WHERE 
+    user_id = '{$id}' 
+    AND user_status != 'deleted'
+
+SQL;
+
+// debug($sql);
+$res = $conn->query($sql);
+
+// Se não obteve os dados, mostra erro 404:
+if ($res->num_rows != 1) header('Location: /?p=e404');
+
+// Obtém os dados do usuário para $user[]:
+$user = $res->fetch_assoc();
+
+// debug($user, true, false);
+
+// Inicializa o formulário:
+$user_form = array(
+    'action' => $_SERVER['REQUEST_URI'],
+    'name' => $user['user_name'],
+    'email' => $user['user_email'],
+    'avatar' => $user['user_avatar'],
+    'birth' => $user['user_birth'],
+    'bio' => $user['user_bio'],
+    'type' => $user['user_type'],
+    'password' => false // Oculta o campo de senha na edição.
+);
+
+// inclui o formulário:
+require('page/_form.php');
+
+// Se o formulário foi submetido...
 if ($_SERVER["REQUEST_METHOD"] == "POST") :
 
-    $sql = "UPDATE users SET 
-    user_name = '{$_POST['name']}', 
-    user_email = '{$_POST['email']}' , 
-    user_password = '{$_POST['password']}', 
-    user_ = '{$_POST['author']}'
-    WHERE users_id = '{$_POST['id']}';"; 
-    
-  $conn->query($sql);
+    // Monta query de atualização:
+    $sql = <<<SQL
 
-endif;
+UPDATE users SET
+    user_name = '{$_POST['name']}',
+    user_email = '{$_POST['email']}',
+    user_avatar = '{$_POST['avatar']}',
+    user_birth = '{$_POST['birth']}',
+    user_bio = '{$_POST['bio']}',
+    user_type = '{$_POST['type']}'
+WHERE user_id = '{$id}'
+    AND user_status != 'deleted';
 
+SQL;
 
+    // debug($sql);
 
-$page_article = <<<HTML
+    // Executa query de atualização:
+    $conn->query($sql);
 
-  <h1>Editar informações do livro:</h1>
+    // Gera feedback:
+    $page_content .= <<<HTML
 
-  <form action="?p=update.php" method="POST">
-
-  <input type="hidden" name="id" value="<?php 
-     echo $peruse_users['user_id']; ?>">
-
-    <label>Nome do Usuario:</label>
-    <input type="text" name="name" required maxlength="50" placeholder="Nome do livro..." value="<?php 
-     echo $peruse_users['users_name']; ?>">
-    <br>
-    <label>Email:</label>
-    <input type="text" name="email" required maxlength="50" placeholder="Gênero do livro..." value="<?php 
-     echo $peruse_users['user_email']; ?>">
-    <br>
-    <label>Senha:</label>
-    <input type="text" name="password" placeholder="Preço do livro..." value="<?php 
-    echo $peruse_users['user_password']; ?>">
-    <br>
-    <label>Avatar:</label>
-    <input type="text" name="avatar" required maxlength="50" placeholder="Nome do autor do livro..." value=" <?php 
-    echo $peruse_users['user_avatar']; ?>">
-    <label>Aniversario:</label>
-    <input type="text" name="birthday" required maxlength="50" placeholder="Nome do autor do livro..." value=" <?php 
-    echo $peruse_users['user_birth']; ?>">
-    <br>
-    <label>Biografia:</label>
-    <input type="text" name="birthday" required maxlength="50" placeholder="Nome do autor do livro..." value=" <?php 
-    echo $peruse_users['user_birth']; ?>">
-    <br>
-    <label>Tipo:</label>
-    <input type="text" name="birthday" required maxlength="50" placeholder="Nome do autor do livro..." value=" <?php 
-    echo $peruse_users['user_birth']; ?>">
-    <button type="submit">Editar</button>
-
-  </form>
+<p>Dados do usuário salvos com sucesso!</p>
+<p class="center">
+    <a href="/?p=view&u={$id}">Ver perfil</a> &nbsp;|&nbsp;
+    <a href="/">Listar usuários</a>
+</p>
 
 HTML;
 
-  ?>
+else :
+
+    $page_content .= <<<HTML
+
+<p>Preencha todos os campos com atenção.</p>
+{$form}
+
+
+HTML;
+
+endif;
