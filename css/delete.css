@@ -1,8 +1,3 @@
-/**
- * delete.css
- * Folha de estilos de '/?p=delete'.
- **/
-
 .form-delete {
     display: table;
     margin: auto;
@@ -10,7 +5,7 @@
 
 .form-delete blockquote {
     text-align: center;
-    color: orangered;
+    color: red;
 }
 
 .form-delete button {
@@ -32,7 +27,7 @@
 }
 
 .form-delete button[type="submit"] {
-    background: orangered;
+    background: red;
 }
 
 .form-delete button[type="button"]:hover {
@@ -40,7 +35,7 @@
 }
 
 .form-delete button[type="submit"]:hover {
-    background: rgb(136, 37, 1);
+    background: rgb(128, 17, 2);
 }
 
 .user-tools {

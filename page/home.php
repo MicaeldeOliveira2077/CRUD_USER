@@ -1,25 +1,15 @@
 <?php
 
-/**
- * home.php
- * Página inicial do aplicativo, carregada pelo link '/?p=home' ou '/'.
- **/
-
-// Inicializa variáveis:
 $page_title = 'Listagem';
 $page_content = "<h2>Usuários do Aplicativo</h2>";
 
-// Obtém a lista de ususários não apagados:
 $sql = "SELECT user_id, user_name, user_email FROM users WHERE user_status != 'deleted' ORDER BY user_date DESC;";
 $res = $conn->query($sql);
 
-// Conta usuários obtidos:
 $total = $res->num_rows;
 
-// Não tem registros?
 if ($total > 0) {
 
-    // Cabeçalho da tabela:
     $page_content .= <<<HTML
 
 <div class="list-overflow">
@@ -33,7 +23,6 @@ if ($total > 0) {
 
 HTML;
 
-    // Loop dos registros:
     while ($user = $res->fetch_assoc()) :
 
         $page_content .= <<<HTML
@@ -53,7 +42,6 @@ HTML;
 
     endwhile;
 
-    // Fechamento da tabela;
     $page_content .= <<<HTML
     
     </table>

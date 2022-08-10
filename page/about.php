@@ -1,11 +1,5 @@
 <?php
 
-/**
- * about.php
- * Página 'Sobre' carregada pelo link '/?p=about'.
- **/
-
-// Inicializa variáveis:
 $page_title = 'Sobre';
 $page_content = <<<HTML
 

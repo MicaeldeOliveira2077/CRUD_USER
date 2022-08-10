@@ -1,21 +1,12 @@
 <?php
 
-/**
- * view.php
- * Página 'Perfil' carregada pelo link '/?p=view'.
- **/
-
-// Inicializa a variáveis:
 $page_title = 'Perfil';
 $id = 0;
 
-// Obtém o id da URL:
 if (isset($_GET['u'])) $id = intval($_GET['u']);
 
-// Se o id é inválido, redireciona para ERRO 404:
 if ($id == 0) header('Location: /?p=e404');
 
-// Obtém os dados do usuário do banco de dados:
 $sql = <<<SQL
 
 SELECT 
@@ -29,32 +20,23 @@ WHERE
 
 SQL;
 
-// debug($sql);
 $res = $conn->query($sql);
 
-// Se não obteve os dados, mostra erro 404:
 if ($res->num_rows != 1) header('Location: /?p=e404');
 
-// Obtém os dados do usuário para $user[]:
 $user = $res->fetch_assoc();
 
-// debug($user, true, false);
-
-// Obtém o primeiro e último nome do usuário:
 $parts = explode(' ', $user['user_name']);
 $user['viewname'] = $parts[0] . ' ' . $parts[count($parts) - 1];
 
-// Calcula data de nascimento:
 $user['age'] = get_age($user['user_birth']);
 
-// Processa status do susuário:
 if ($user['user_status'] == 'on') {
     $user_status = '<span class="active">ATIVO</span> [<a href="/?p=status&u=' . $id . '&a=0">Desativar</a>]';
 } else {
     $user_status = '<span class="inactive">INATIVO</span> [<a href="/?p=status&u=' . $id . '&a=1">Ativar</a>]';
 }
 
-// Processa tipo de usuário:
 switch ($user['user_type']) {
     case 'author':
         $user_type = "Autor";
@@ -69,7 +51,6 @@ switch ($user['user_type']) {
         $user_type = "Usuário";
 }
 
-// Sanitiza e formata campo 'bio':
 $user_bio = nl2br(htmlspecialchars($user['user_bio']));
 
 $page_content = <<<HTML

@@ -1,11 +1,5 @@
 <?php
 
-/**
- * e404.php
- * Página 'Erro 404' carregada pelo link '/?p=e404'.
- **/
-
-// Inicializa variáveis:
 $page_title = 'Erro 404';
 $page_content = <<<HTML
 
